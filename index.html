@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<!--
+ Name: Ziyad M. AlGhamdi
+ Google API Key: AIzaSyCaKgSGppIUdnENhWDrA-cgpRgsRZLy7NE
+ Google API Key Server Side: AIzaSyBWn6blfUvNMRBcDccvI2MbRs4Wzit2dHI
+-->
+
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <title>Neighborhood Map</title>
+  </head>
+
+  <body>
+
+    <!-- Where the map will be -->
+    <div id="map"></div>
+
+    <!-- Link the proper JavaScripts Files -->
+    <script src="js/jQuery.js"></script>
+    <script src="js/knockout.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/script.js"></script>
+    <!-- The Script will be loaded for the Google API -->
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCaKgSGppIUdnENhWDrA-cgpRgsRZLy7NE&v=3&callback=ViewModel.initGoogleMap">
+    </script>
+
+  </body>
+
+</html>

@@ -1,0 +1,71 @@
+/*
+* Font imports from Google Fonts
+* font-family: 'Quicksand', sans-serif;
+* font-family: 'Playfair Display SC', serif;
+* font-family: 'Philosopher', sans-serif;
+*/
+
+@import url('https://fonts.googleapis.com/css?family=Philosopher|Playfair+Display+SC|Quicksand|Yrsa');
+/* My Framework */
+
+/* Specific Styles */
+
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  /* float: left; */
+  display: flex;
+}
+
+.map-container {
+  width: 85%;
+}
+
+#map {
+  height: 100%;
+}
+
+.left-options {
+  width: 15%;
+  background-color: rgb(50, 51, 51);
+  color: white;
+  text-align: center;
+  overflow-y: scroll;
+}
+
+.menu-title {
+  font-family: 'Quicksand', sans-serif;
+}
+
+#filter-input {
+  color: black;
+}
+
+.filter-result {
+  border-color: white;
+  border-bottom: 1px;
+}
+
+.one-result {
+  text-align: left;
+  font-family: 'Philosopher', sans-serif;
+  width: 100%;
+  font-size: 12pt;
+}
+
+.one-result:hover {
+  background-color: rgb(122, 124, 123);
+}
+
+.infoWindow-div {
+  text-align: left;
+}
+
+/* TODO remove for the sake of testing */
+
+.test {
+  border: solid;
+  border-width: 2px;
+  border-color: red;
+}
