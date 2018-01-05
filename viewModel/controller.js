@@ -9,11 +9,6 @@
  * application and it is the middle tier between the views and the models
  */
 
-//TODO further testing
-//TODO Documentations
-//TODO redirect index.html to hello.html
-//TODO all commented out code removed
-
 var ViewModel = {
   //---------------------------------------------------------------------------------------------
   //Knockout binded variables. It is binded to the list view in the HTML and get updated automatically
