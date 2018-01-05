@@ -1,5 +1,6 @@
-<!DOCTYPE html>
 <!--
+ Project#8: Neighborhood Map
+
  Name: Ziyad M. AlGhamdi
  Google API Key: AIzaSyCaKgSGppIUdnENhWDrA-cgpRgsRZLy7NE
  Google API Key Server Side: AIzaSyBWn6blfUvNMRBcDccvI2MbRs4Wzit2dHI
@@ -8,7 +9,7 @@
 <html>
 
   <head>
-    <meta charset="utf-8">
+    <!-- styles put here, but you can include a CSS file and reference it instead! -->
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/style.css">
     <title>Neighborhood Map</title>
@@ -16,18 +17,55 @@
 
   <body>
 
-    <!-- Where the map will be -->
-    <div id="map"></div>
+    <!-- Where the options will be shown -->
+    <div id="left-options" class="left-options">
+      <h2 class="menu-title">Options Nearby</h2>
+      <br>
+      <input type="text" name="" value="" id="filter-input" placeholder="Filter by a place">
+      <button type="button" name="button" id="filter-button" class="btn-primary" data-bind="click: ViewModel.nearbyFilterPlaces">Filter</button>
+      <hr>
+      <div data-bind="template: { name: 'place-template', foreach: places }"></div>
+      <script type="text/html" id="place-template">
+        <h3 data-bind="text: name, click: view.optionClicked" class="one-result"></h3>
+        <!-- <p>Credits: <span data-bind="text: credits"></span></p> -->
+      </script>
+    </div>
+
+
+    <!-- A template for each infoWindow for each Marker -->
+    <template id="infoWindow-template">
+    <div class="infoWindow-div">
+      <h4 class="info-window-title"></h4>
+      <ul class="info-window-text"></ul>
+    </div>
+    </template>
+
+
+    <!-- Where the map will be placed -->
+    <div class="map-container">
+      <div id="map"></div>
+    </div>
+
 
     <!-- Link the proper JavaScripts Files -->
-    <script src="js/jQuery.js"></script>
-    <script src="js/knockout.js"></script>
-    <script src="js/bootstrap.min.js"></script>
-    <script src="js/script.js"></script>
-    <!-- The Script will be loaded for the Google API -->
-    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCaKgSGppIUdnENhWDrA-cgpRgsRZLy7NE&v=3&callback=ViewModel.initGoogleMap">
-    </script>
+    <!-- 1. Load the required frameworks and libraries -->
+    <script src="libraries/jQuery.js"></script>
+    <script src="libraries/knockout.js"></script>
+    <script src="libraries/bootstrap.min.js"></script>
 
+    <!-- 2. Load the Models -->
+    <script src="model/listModel.js"></script>
+    <script src="model/mapModel.js"></script>
+
+    <!-- 3. Load the Views -->
+    <script src="view/view.js"></script>
+
+    <!-- 4. Load the ViewModels (Controllers) -->
+    <script src="viewModel/controller.js"></script>
+
+    <!-- The Script will be loaded for the Google API -->
+    <script async defer src="https://maps.googleapis.com/maps/api/js?libraries=places,geometry&key=AIzaSyCaKgSGppIUdnENhWDrA-cgpRgsRZLy7NE&v=3&callback=ViewModel.initGoogleMap">
+    </script>
   </body>
 
 </html>

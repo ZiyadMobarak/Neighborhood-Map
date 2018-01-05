@@ -2,96 +2,33 @@
  * Name: Ziyad M. AlGhamdi
  * Google API Key: AIzaSyCaKgSGppIUdnENhWDrA-cgpRgsRZLy7NE
  * Google API Key Server Side: AIzaSyBWn6blfUvNMRBcDccvI2MbRs4Wzit2dHI
+ *
+ * Type: ViewModel (Controller)
+ *
+ * This is the big elephent in the room. The controller contains all the logic behind the
+ * application and it is the middle tier between the views and the models
  */
 
-//List of TODO :-
-//TODO Testing
-//TODO Upload online Github
-//TODO Create View Model ViewModel
-//TODO Relate options to Knockout
+//TODO further testing
+//TODO Documentations
+//TODO redirect index.html to hello.html
+//TODO all commented out code removed
 
-/**
- * Test a new model
- */
-function leftListOptions(places) {
-  this.places = places;
-}
-// ko.applyBindings(new leftListOptions());
-
-/**
- * The Model (All data will be stored here)
- */
-var nearByPlaces = {
-  'map': null,
-  'infoWindow': null,
-  'markers': [], //All nearby markers
-  'filteredMarkers': [], //Only the filtered markers
-  'radius': 3000, //Search radius (3km)
-
-  //This method hides the passed markers in the maps
-  hideMarkers: function(markers) {
-    for (var i = 0; i < markers.length; i++) {
-      markers[i].setMap(null);
-    }
-  },
-
-  //This method closes the opened InfoWindow
-  closeInfoWindow: function() {
-    //Close and clear the current info InfoWindow
-    nearByPlaces.infoWindow.close();
-    nearByPlaces.infoWindow.marker = null;
-  },
-
-  bounceMarker: function(marker) {
-    nearByPlaces.removeAllAnimations();
-    marker.setAnimation(google.maps.Animation.BOUNCE);
-  },
-
-  removeAllAnimations: function() {
-    for (var i = 0; i < nearByPlaces.markers.length; i++) nearByPlaces.markers[i].setAnimation(null);
-  }
-}
-
-/**
- * The View (Responsible for manipulating the HTML)
- */
-var view = {
-  printNearbyPlaces: function(markers) {
-    //Remove all the children nodes (all the shown results to reprint them)
-    // var optionsList = document.getElementById('nearby-results');
-    // optionsList.innerHTML = '';
-    //
-    // //Print all the markers in the filter list using the taken template
-    // for (var i = 0; i < markers.length; i++) {
-    //   var tmpl = document.getElementById('filter-template').content.cloneNode(true);
-    //   tmpl.querySelector('.one-result').innerText = markers[i].getTitle();
-    //   optionsList.appendChild(tmpl);
-    // }
-
-    //Append a listener to all the options shown in the left of the map
-
-    //TODO the following block if managed to append event listenere
-    // $(".one-result").click(function() {
-    //   var markerChosen = ViewModel.findMarker($(this).text());
-    //   ViewModel.populateInfoWindow(markerChosen, nearByPlaces.infoWindow);
-    // });
-  },
-
-  optionClicked: function(item, event) {
-    var theChosenPlace = $(event.currentTarget).text();
-    var markerChosen = ViewModel.findMarker(theChosenPlace);
-    ViewModel.populateInfoWindow(markerChosen, nearByPlaces.infoWindow);
-  }
-}
-
-/**
- * The ViewModel (All the logic will be written here)
- */
 var ViewModel = {
+  //---------------------------------------------------------------------------------------------
+  //Knockout binded variables. It is binded to the list view in the HTML and get updated automatically
+  //---------------------------------------------------------------------------------------------
+  'listView': null,
+  //---------------------------------------------------------------------------------------------
+  //End of binded variables
+  //---------------------------------------------------------------------------------------------
 
-  //Initialize Google Map
+
+  //---------------------------------------------------------------------------------------------
+  //This method does all the required initialzations for the map
+  //---------------------------------------------------------------------------------------------
   initGoogleMap: function() {
-    //Jump to the location of our Udacity-Connect Class
+    //Jump to the location of our Udacity-Connect Class location
     nearByPlaces.map = new google.maps.Map(document.getElementById("map"), {
       center: {
         lat: 26.309226,
@@ -111,14 +48,16 @@ var ViewModel = {
           lng: position.coords.longitude
         };
 
+        //Center the map to the current user location
         nearByPlaces.infoWindow.setPosition(pos);
         nearByPlaces.infoWindow.setContent('Location found.');
         nearByPlaces.infoWindow.open(nearByPlaces.map);
         nearByPlaces.map.setCenter(pos);
 
+        //Get all nearby places, create and place markers for them in the map
         ViewModel.initialNearbyFilterPlaces();
-        view.printNearbyPlaces(nearByPlaces.markers);
       }, function() {
+        //The user didn't authorize the browser to access current location
         ViewModel.handleLocationError(true, nearByPlaces.infoWindow, nearByPlaces.map.getCenter());
       });
     } else {
@@ -128,14 +67,15 @@ var ViewModel = {
 
     //After setting the current location, get the bound of the current map
     var bounds = new google.maps.LatLngBounds();
-
-    //Create an event listener to the filter button
-    document.getElementById("filter-button").addEventListener("click", function() {
-      ViewModel.nearbyFilterPlaces();
-    });
   },
+  //---------------------------------------------------------------------------------------------
+  //End of initGoogleMap() method
+  //---------------------------------------------------------------------------------------------
 
-  //This method will find a marker by its name
+
+  //---------------------------------------------------------------------------------------------
+  //This method finds the desired marker by its name (will be used when the user clicks on one of the list options)
+  //---------------------------------------------------------------------------------------------
   findMarker: function(markerTitle) {
     for (var i = 0; i < nearByPlaces.markers.length; i++) {
       var theCheck = nearByPlaces.markers[i].getTitle() == markerTitle;
@@ -145,8 +85,14 @@ var ViewModel = {
       }
     }
   },
+  //---------------------------------------------------------------------------------------------
+  //End of findMarker() method
+  //---------------------------------------------------------------------------------------------
 
-  //This method will be used to populate the infoWindow of a marker
+
+  //---------------------------------------------------------------------------------------------
+  //This method populates the infoWindow above the desired marker
+  //---------------------------------------------------------------------------------------------
   populateInfoWindow: function(marker, infowindow) {
     if (nearByPlaces.infoWindow.marker != marker) {
       //Close the open window if any
@@ -155,24 +101,23 @@ var ViewModel = {
       //Set the new infoWindow to the chosen marker
       nearByPlaces.infoWindow.marker = marker;
 
-      //Prepare the HTML to be the content of the infoWindow TODO get content for the place
+      //Prepare the HTML to be the content of the infoWindow
       var tmpl = document.getElementById('infoWindow-template').content.cloneNode(true);
       tmpl.querySelector('.info-window-title').innerText = marker.title;
       tmpl.querySelector('.info-window-text').innerText = "";
 
+      //Set the title in the infoWindow and open the infoWindow above the desired marker
       nearByPlaces.infoWindow.setContent(tmpl);
       nearByPlaces.infoWindow.open(nearByPlaces.map, marker);
 
-      //----------------------------------------------------------
-      // Getting Wikipedia Articles
-      //----------------------------------------------------------
+      //Prepare the link to get the Wikipedia links
       var wikiURL = "https://en.wikipedia.org/w/api.php";
 
-      //Wikipedia links title in the InfoWindow
+      //Initial message telling the user to wait for the results
       var $wikiElem = $(".info-window-text");
       $wikiElem.text("Getting Wikipedia Links .. Please Wait");
 
-      //Wiki Timeout
+      //Wiki Timeout (8 seconds before failing the process)
       var wikiRequestTimeout = setTimeout(function() {
         var errorWikiHeader = "Failed to Get Wikipedia Resources";
         var $wikiElem = $(".info-window-text");
@@ -215,9 +160,7 @@ var ViewModel = {
           }
         }
       });
-      //----------------------------------------------------------
       // End of Getting Wikipedia Articles
-      //----------------------------------------------------------
 
       //Clear the marker when the infoWindow is closed
       nearByPlaces.infoWindow.addListener('closeclick', function() {
@@ -226,8 +169,14 @@ var ViewModel = {
       });
     }
   },
+  //---------------------------------------------------------------------------------------------
+  //End of populateInfoWindow() method
+  //---------------------------------------------------------------------------------------------
 
-  //This method create markers for the given places TODO place in the right place
+
+  //---------------------------------------------------------------------------------------------
+  //This method prepare all the markers for the results obtained from GOOGLE PLACES
+  //---------------------------------------------------------------------------------------------
   createMarkersForPlaces: function(places) {
     //Remove all old markers
     nearByPlaces.markers = [];
@@ -245,13 +194,13 @@ var ViewModel = {
 
       //Add listener to the marker
       marker.addListener('click', function() {
-        nearByPlaces.removeAllAnimations(); //TODO new code
-        nearByPlaces.bounceMarker(this); //TODO new code
+        nearByPlaces.removeAllAnimations();
+        nearByPlaces.bounceMarker(this);
         ViewModel.populateInfoWindow(this, nearByPlaces.infoWindow);
       });
 
+      //Store the marker in our markers list
       nearByPlaces.markers.push(marker);
-
 
       //Adjust the map to fit all place markers created
       if (place.geometry.viewport) {
@@ -259,14 +208,17 @@ var ViewModel = {
       } else {
         bounds.union(place.geometry.location);
       }
-      // map.fitBounds(bounds);
     }
 
-    //Once the markers are created, append to the options list in the left (print the names of all nearby places)
-    view.printNearbyPlaces(nearByPlaces.markers);
   },
+  //---------------------------------------------------------------------------------------------
+  //End of createMarkersForPlaces() method
+  //---------------------------------------------------------------------------------------------
 
-  //This function will look in certain reange for nearby places TODO in the right place
+
+  //---------------------------------------------------------------------------------------------
+  //This method requests the nearby places from GOOGLE PLACES web services
+  //---------------------------------------------------------------------------------------------
   initialNearbyFilterPlaces: function() {
     var bounds = nearByPlaces.map.getBounds();
     var mapCenter = nearByPlaces.map.getCenter();
@@ -278,13 +230,23 @@ var ViewModel = {
     }, function(results, status) {
       if (status === google.maps.places.PlacesServiceStatus.OK) {
         ViewModel.createMarkersForPlaces(results); //Create markers for all the found places
-        ko.applyBindings(new leftListOptions(results)); //TODO KO Bindings
+
+        //Activate the bindings
+        listView = new leftListOptions(results);
+        ko.applyBindings(listView);
+
         return results;
       }
     });
   },
+  //---------------------------------------------------------------------------------------------
+  //End of initialNearbyFilterPlaces() method
+  //---------------------------------------------------------------------------------------------
 
-  //This method should filter only from the given initial list, not sending a new request
+
+  //---------------------------------------------------------------------------------------------
+  //This method filters the options list
+  //---------------------------------------------------------------------------------------------
   nearbyFilterPlaces: function() {
     //Close the infoWindow if opened
     nearByPlaces.closeInfoWindow();
@@ -295,38 +257,50 @@ var ViewModel = {
     //Loop through all the markers, store the filtered once (if the input is empty, then print all initial markers)
     if (filterInput == "") {
       ViewModel.showFilteredMarkers(nearByPlaces.markers);
-      view.printNearbyPlaces(nearByPlaces.markers);
+      listView.replaceList(nearByPlaces.markers);
     } else {
       nearByPlaces.filteredMarkers = []; //Clear all the filtered markers list
       for (var i = 0; i < nearByPlaces.markers.length; i++) {
         //Check if the marker title contains the searched keyword
-        if (nearByPlaces.markers[i].title.toLowerCase().search(filterInput.toLowerCase()) >= 0) nearByPlaces.filteredMarkers.push(nearByPlaces.markers[
-          i]);
+        if (nearByPlaces.markers[i].title.toLowerCase().search(filterInput.toLowerCase()) >= 0)
+          nearByPlaces.filteredMarkers.push(nearByPlaces.markers[i]);
       }
       ViewModel.showFilteredMarkers(nearByPlaces.filteredMarkers);
-      view.printNearbyPlaces(nearByPlaces.filteredMarkers);
+      listView.replaceList(nearByPlaces.filteredMarkers);
     }
   },
+  //---------------------------------------------------------------------------------------------
+  //End of nearbyFilterPlaces() method
+  //---------------------------------------------------------------------------------------------
 
-  //Show the filtered markers
+
+  //---------------------------------------------------------------------------------------------
+  //This method shows only the passed markers in the map (it will be used when filtering the markers)
+  //---------------------------------------------------------------------------------------------
   showFilteredMarkers: function(markers) {
     nearByPlaces.hideMarkers(nearByPlaces.markers); //Hide all markers then start shown only the desired markers
     for (var i = 0; i < markers.length; i++) markers[i].setMap(nearByPlaces.map);
   },
+  //---------------------------------------------------------------------------------------------
+  //End of showFilteredMarkers() method
+  //---------------------------------------------------------------------------------------------
 
-  //Handle errors for the location authorization
+
+  //---------------------------------------------------------------------------------------------
+  //This method handles the errors from locating the users
+  //---------------------------------------------------------------------------------------------
   handleLocationError: function(supportGeo, infoWindow, mapCenter) {
     if (supportGeo) {
       //User not authorized the browser to access his location \
       console.log("Need authorization to find nearby places");
       ViewModel.initialNearbyFilterPlaces();
-      view.printNearbyPlaces(nearByPlaces.markers);
     } else {
       //Browser doesn't support Geolocation
       console.log("Your browser doesn't support ");
       initialNearbyFilterPlaces();
-      view.printNearbyPlaces(nearByPlaces.markers);
     }
   }
-
+  //---------------------------------------------------------------------------------------------
+  //End of handleLocationError() method
+  //---------------------------------------------------------------------------------------------
 }
