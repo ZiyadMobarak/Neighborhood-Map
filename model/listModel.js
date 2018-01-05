@@ -8,6 +8,7 @@
 function leftListOptions(places) {
   var self = this;
   self.places = ko.observableArray(places);
+  self.filterInput = ko.observable();
 
   self.replaceList = function(markers) {
     var places = [];

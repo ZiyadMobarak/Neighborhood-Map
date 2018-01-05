@@ -9,6 +9,9 @@
 <html>
 
   <head>
+    <!-- To Support Responsiveness -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <!-- styles put here, but you can include a CSS file and reference it instead! -->
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/style.css">
@@ -21,7 +24,7 @@
     <div id="left-options" class="left-options">
       <h2 class="menu-title">Options Nearby</h2>
       <br>
-      <input type="text" name="" value="" id="filter-input" placeholder="Filter by a place">
+      <input type="text" name="" value="" id="filter-input" placeholder="Filter by a place" data-bind="textInput: filterInput">
       <button type="button" name="button" id="filter-button" class="btn-primary" data-bind="click: ViewModel.nearbyFilterPlaces">Filter</button>
       <hr>
       <div data-bind="template: { name: 'place-template', foreach: places }"></div>
@@ -30,15 +33,6 @@
         <!-- <p>Credits: <span data-bind="text: credits"></span></p> -->
       </script>
     </div>
-
-
-    <!-- A template for each infoWindow for each Marker -->
-    <template id="infoWindow-template">
-    <div class="infoWindow-div">
-      <h4 class="info-window-title"></h4>
-      <ul class="info-window-text"></ul>
-    </div>
-    </template>
 
 
     <!-- Where the map will be placed -->
@@ -64,7 +58,7 @@
     <script src="viewModel/controller.js"></script>
 
     <!-- The Script will be loaded for the Google API -->
-    <script async defer src="https://maps.googleapis.com/maps/api/js?libraries=places,geometry&key=AIzaSyCaKgSGppIUdnENhWDrA-cgpRgsRZLy7NE&v=3&callback=ViewModel.initGoogleMap">
+    <script async defer onerror="ViewModel.handleFallbackError()" src="https://maps.googleapis.com/maps/api/js?libraries=places,geometry&key=AIzaSyCaKgSGppIUdnENhWDrA-cgpRgsRZLy7NE&v=3&callback=ViewModel.initGoogleMap">
     </script>
   </body>
 

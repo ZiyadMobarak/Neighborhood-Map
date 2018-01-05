@@ -96,33 +96,41 @@ var ViewModel = {
       //Set the new infoWindow to the chosen marker
       nearByPlaces.infoWindow.marker = marker;
 
-      //Prepare the HTML to be the content of the infoWindow
-      var tmpl = document.getElementById('infoWindow-template').content.cloneNode(true);
-      tmpl.querySelector('.info-window-title').innerText = marker.title;
-      tmpl.querySelector('.info-window-text').innerText = "";
+      //Template will be used in the infoWindow
+      var infoWindowDiv = '<div class="infoWindow-div">%DATA%</div>';
+      var infoWindowTitle = '<h4 class="info-window-title">%DATA%</h4>';
+      var wikiList = '<ul class="info-window-text">%DATA%</ul>';
+
+      //Prepare the title and the fetching strings for the infoWindow
+      var titleReady = infoWindowTitle.replace("%DATA%", marker.title);
+
+      //Concatinate the whole template so we can set the content of the infoWindow
+      var infoWindowContent = infoWindowDiv.replace("%DATA%", titleReady);
 
       //Set the title in the infoWindow and open the infoWindow above the desired marker
-      nearByPlaces.infoWindow.setContent(tmpl);
+      nearByPlaces.infoWindow.setContent(infoWindowContent);
       nearByPlaces.infoWindow.open(nearByPlaces.map, marker);
 
       //Prepare the link to get the Wikipedia links
       var wikiURL = "https://en.wikipedia.org/w/api.php";
 
-      //Initial message telling the user to wait for the results
-      var $wikiElem = $(".info-window-text");
-      $wikiElem.text("Getting Wikipedia Links .. Please Wait");
-
-      //Wiki Timeout (8 seconds before failing the process)
+      //Wiki Timeout (3 seconds before failing the process)
       var wikiRequestTimeout = setTimeout(function() {
-        var errorWikiHeader = "Failed to Get Wikipedia Resources";
-        var $wikiElem = $(".info-window-text");
-        $wikiElem.text(errorWikiHeader);
-      }, 8000);
+        //Template will be used in the infoWindow
+        var infoWindowDiv = '<div class="infoWindow-div">%DATA%</div>';
+        var infoWindowTitle = '<h4 class="info-window-title">%DATA%</h4>';
+        var fetchingMessage = '<h6>%DATA%</h6>';
+
+        var titleReady = infoWindowTitle.replace("%DATA%", marker.title);
+        var errorMessageReady = fetchingMessage.replace("%DATA%", "Failed to Get Wikipedia Resources");
+        var infoWindowContent = infoWindowDiv.replace("%DATA%", titleReady + errorMessageReady);
+        nearByPlaces.infoWindow.setContent(infoWindowContent);
+      }, 3000);
 
       //Preparing the parameter for the URL request
       wikiURL += '?' + $.param({
         'action': 'opensearch',
-        'search': marker.title,
+        'search': marker.title.split(" ")[0], //Search by the first word only
         'format': 'json',
         'callback': 'wikiCallback'
       });
@@ -132,27 +140,36 @@ var ViewModel = {
         url: wikiURL,
         dataType: "jsonp",
         success: function(response) {
-          var articlesList = response[1];
-          var $wikiElem = $(".info-window-text");
-          if (articlesList.length > 0) $wikiElem.text("Wikipedia Links :-");
-          for (var i = 0; i < articlesList.length; i++) {
-            //Prepare the list item
-            var $articleListItem = $("<li></li>");
+          //Template will be used in the infoWindow
+          var infoWindowDiv = '<div class="infoWindow-div">%DATA%</div>';
+          var infoWindowTitle = '<h4 class="info-window-title">%DATA%</h4>';
+          var wikiList = '<ul class="info-window-text">%DATA%</ul>';
+          var wikiListElement = '<li><a href="%WIKIURL%">%DATA%</a></li>'
 
+          var listMessageReady = "";
+          var articlesList = response[1];
+          if (articlesList.length > 0) { //If we have response from Wikipedia
+            //Stop Error timeout upon success and we have some results
+            clearTimeout(wikiRequestTimeout);
+            listMessageReady = wikiList.replace("%DATA%", "Wikipedia Links :-%DATA%");
+          }
+
+          //Prepare all the list items
+          var listItemsReady = "";
+          for (var i = 0; i < articlesList.length; i++) {
             //Get the article title and url and create a <a> and prepare to be appended to the item list
             var articleStr = articlesList[i];
             var articleURL = "https://en.wikipedia.org/wiki/" + articleStr;
-            var $articleTitle = $("<a></a>");
-            $articleTitle.attr("href", articleURL);
-            $articleTitle.text(articleStr);
 
-            //Append the link to the list item, then append the item to the Wiki List
-            $articleListItem.append($articleTitle);
-            $wikiElem.append($articleListItem);
-
-            //Stop Error timeout upon success
-            clearTimeout(wikiRequestTimeout);
+            //Add one list item
+            var temp = wikiListElement.replace("%WIKIURL%", articleURL);
+            listItemsReady += temp.replace("%DATA%", articleStr);
           }
+
+          //Set the content of the infoWindow after recieving the Wikipedia list
+          listMessageReady = listMessageReady.replace("%DATA%", listItemsReady);
+          var infoWindowContent = infoWindowDiv.replace("%DATA%", titleReady + listMessageReady);
+          nearByPlaces.infoWindow.setContent(infoWindowContent);
         }
       });
       // End of Getting Wikipedia Articles
@@ -246,8 +263,8 @@ var ViewModel = {
     //Close the infoWindow if opened
     nearByPlaces.closeInfoWindow();
 
-    //Get what is in the input field
-    var filterInput = document.getElementById("filter-input").value;
+    //Get the filter input using Knockout
+    var filterInput = listView.filterInput();
 
     //Loop through all the markers, store the filtered once (if the input is empty, then print all initial markers)
     if (filterInput == "") {
@@ -294,8 +311,21 @@ var ViewModel = {
       console.log("Your browser doesn't support ");
       initialNearbyFilterPlaces();
     }
-  }
+  },
   //---------------------------------------------------------------------------------------------
   //End of handleLocationError() method
+  //---------------------------------------------------------------------------------------------
+
+
+  //---------------------------------------------------------------------------------------------
+  //This method handles the errors coming from Google API request
+  //---------------------------------------------------------------------------------------------
+  handleFallbackError: function() {
+    var errorMessage = "Unexpected Error from Google API !";
+    console.log(errorMessage);
+    alert(errorMessage);
+  }
+  //---------------------------------------------------------------------------------------------
+  //End of handleFallbackError() method
   //---------------------------------------------------------------------------------------------
 }
